@@ -12,12 +12,19 @@ _extra = os.pathsep.join(d for d in _cuda_dirs if os.path.isdir(d))
 if _extra:
     os.environ["PATH"] = _extra + os.pathsep + os.environ.get("PATH", "")
 
+import ctranslate2
 from faster_whisper import WhisperModel
 
 
 def transcribe(audio_path, model_size="large-v3", output_path=None):
-    print(f"Loading model: {model_size}")
-    model = WhisperModel(model_size, device="cuda", compute_type="float16")
+    # Use the GPU when CUDA is available; otherwise fall back to CPU (e.g. on a Mac)
+    if ctranslate2.get_cuda_device_count() > 0:
+        device, compute_type = "cuda", "float16"
+    else:
+        device, compute_type = "cpu", "int8"
+
+    print(f"Loading model: {model_size} ({device}, {compute_type})")
+    model = WhisperModel(model_size, device=device, compute_type=compute_type, cpu_threads=os.cpu_count())
 
     print(f"Transcribing: {audio_path}")
     segments, info = model.transcribe(audio_path, beam_size=5)
