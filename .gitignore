@@ -1,0 +1,14 @@
+# Transcripts and recordings (session audio/video and their transcripts stay local)
+*.txt
+!requirements.txt
+*.m4a
+*.mp3
+*.wav
+*.ogg
+*.flac
+*.mov
+*.mkv
+*.mp4
+
+.venv/
+__pycache__/
